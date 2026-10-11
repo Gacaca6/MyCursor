@@ -120,6 +120,8 @@ async function run() {
   await page.reload();
   await page.waitForTimeout(300);
   assert.equal(await page.locator('#scan').isVisible(),true);
+  // The old reader is loaded only by this regression test, never by the app.
+  await page.addScriptTag({url:'http://127.0.0.1:8766/jsqr.js'});
   for (const position of ['center', 'corner']) {
     const oldDecoderResult = await page.evaluate(async position => {
       const image = new Image(); image.src = `/test-qr.png?photo=${position}`;
@@ -141,6 +143,25 @@ async function run() {
     await page.locator('#settings').click();
     await page.locator('#disconnect').click();
   }
+  // A camera failure must still allow pairing without a photo or Safari.
+  const blank = Buffer.from(await page.evaluate(()=>{
+    const canvas = document.createElement('canvas'); canvas.width=100; canvas.height=100;
+    const ctx=canvas.getContext('2d');ctx.fillStyle='white';ctx.fillRect(0,0,100,100);
+    return canvas.toDataURL('image/png').split(',')[1];
+  }),'base64');
+  { const box=await page.locator('#scan').boundingBox(); await page.touchscreen.tap(box.x+box.width/2,box.y+box.height/2); }
+  await capture(blank,'no-qr.png');
+  await page.waitForFunction(()=>document.getElementById('scanStatus').textContent.includes('QR unreadable'));
+  assert.equal(await page.locator('#pcCode').isVisible(),true);
+  await page.locator('#pcCode').fill('bad');
+  await page.locator('#connectCode').click();
+  await page.waitForFunction(()=>document.getElementById('codeStatus').textContent.includes('eight digits'));
+  const {code} = await (await page.request.get('http://127.0.0.1:8766/test-code')).json();
+  await page.locator('#pcCode').fill(code.slice(0,4)+' '+code.slice(4));
+  await page.locator('#connectCode').click();
+  await page.waitForFunction(()=>document.getElementById('status').textContent==='Connected');
+  assert.equal(await page.locator('#scanDialog').isVisible(),false);
+  await page.locator('#settings').click(); await page.locator('#disconnect').click();
   await scan();
   await page.locator('#drag').click();
   await page.waitForFunction(async()=> (await (await fetch('/test-events')).json()).held.includes('left'));
@@ -152,7 +173,7 @@ async function run() {
   await scan();
   await page.screenshot({path:'phone-touchpad-preview.png',fullPage:true});
   assert.deepEqual(errors,[]);
-  console.log(`PASS (${engine}): camera-sized blurred/rotated JPEGs that fail the old decoder, QR photo scanning on HTTP, installed-iPhone detection, disconnect/Scan state, saved disconnect, network loss releases drag, settings-only controls, large-pad layout, paired PWA manifest, service worker, install guide, move, tap, two-finger right click, scroll, drag/release, Unicode typing, slide keys, presentation pointer, pause/resume, reconnect; no browser errors.`);
+  console.log(`PASS (${engine}): ZXing QR-only WASM decoder, camera-sized blurred/rotated JPEGs, unreadable photo → code pairing → authenticated connection, installed-iPhone detection, disconnect/Scan state, network loss releases drag, large-pad layout, paired PWA manifest, service worker, install guide, movement and gestures; no browser errors.`);
   await context.close();
   const browserContext = await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
   const installPage = await browserContext.newPage();
@@ -165,7 +186,7 @@ async function run() {
   assert.equal(await installPage.locator('#installHelp').isVisible(),false);
   assert.equal(await installPage.locator('#install').isVisible(),false);
   await installPage.waitForFunction(async()=>!!(await navigator.serviceWorker.getRegistration()));
-  assert.equal(await installPage.evaluate(()=>typeof window.jsQR),'function');
+  assert.equal(await installPage.evaluate(()=>typeof window.ZXingWASM.readBarcodes),'function');
   await browser.close();
 }
 run().catch(e=>{console.error(e);process.exit(1)});

@@ -19,6 +19,11 @@ async def events(request):
 
 server.app.router.add_get('/test-events', events)
 
+async def pairing_code(request):
+    return web.json_response({'code': server.pairing_code})
+
+server.app.router.add_get('/test-code', pairing_code)
+
 async def qr(request):
     value = f'https://example.com/#{TOKEN}' if request.query.get('invalid') else f'{request.scheme}://{request.host}/#{TOKEN}'
     image = qrcode.make(value)

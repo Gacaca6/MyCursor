@@ -82,12 +82,20 @@ in standalone display mode, on Apple's navigator.standalone signal, and on
 the browser appinstalled event. Manual disconnects remain disconnected after
 relaunch; network loss returns to Scan and releases held input.
 
-QR decoding uses vendored jsQR 1.4.0 (MIT). Images stay on the phone. On local
+QR decoding uses vendored ZXing WASM 3.1.5 (MIT wrapper, Apache 2.0 ZXing-C++)
+with QR-only detection, rotation, inversion and denoising. Its matched WASM
+binary is served locally, with CSP permission restricted to WASM compilation.
+Images stay on the phone. On local
 HTTP, a directly tapped native image input opens the phone camera; secure
 origins also support live video scanning. Native camera capture must not
 invalidate the returning image when iOS temporarily backgrounds the app.
 The touchpad ignores taps on its Scan button so preventDefault does not swallow
 the button's touchscreen click.
+
+When camera photos cannot be decoded, Scan offers an eight-digit code shown on
+the PC. Same-origin requests, ten-minute rotation, and a global five-failure
+per-minute limit protect this alternative pairing exchange. It returns the
+existing authentication token; the normal WebSocket still confirms connection.
 
 Browser checks use real touchscreen taps to open Scan and the native file
 chooser, decode generated QR images, reject unrelated codes, and connect

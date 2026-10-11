@@ -7,6 +7,7 @@ import hmac
 import math
 import secrets
 import time
+from collections import deque
 from pathlib import Path
 from aiohttp import web, WSMsgType
 
@@ -35,14 +36,20 @@ class PhoneServer:
         self.laser_supported = laser_supported
         self.laser = False
         self.last_seen = 0
+        self._pair_code = ''
+        self._code_expires = 0
+        self._code_failures = deque()
         self.app = web.Application(client_max_size=16384, middlewares=[self.headers])
         self.app.router.add_get('/', self.index)
         self.app.router.add_get('/app.js', self.script)
         self.app.router.add_get('/scanner.js', self.scanner_script)
         self.app.router.add_get('/jsqr.js', self.qr_script)
+        self.app.router.add_get('/zxing.js', self.zxing_script)
+        self.app.router.add_get('/zxing_reader.wasm', self.zxing_wasm)
         self.app.router.add_get('/style.css', self.style)
         self.app.router.add_get('/health', self.health)
         self.app.router.add_post('/pair', self.pair_cookie)
+        self.app.router.add_post('/pair-code', self.pair_code)
         self.app.router.add_get('/manifest.webmanifest', self.manifest)
         self.app.router.add_get('/sw.js', self.service_worker)
         self.app.router.add_get('/icon-{size}.png', self.icon)
@@ -56,7 +63,7 @@ class PhoneServer:
             response.headers.update({
                 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff',
                 'Referrer-Policy': 'no-referrer', 'X-Frame-Options': 'DENY',
-                'Content-Security-Policy': "default-src 'self'; connect-src 'self'; img-src 'self' blob:; media-src 'self' blob:; style-src 'self'; script-src 'self'; frame-ancestors 'none'",
+                'Content-Security-Policy': "default-src 'self'; connect-src 'self'; img-src 'self' blob:; media-src 'self' blob:; style-src 'self'; script-src 'self' 'wasm-unsafe-eval'; frame-ancestors 'none'",
             })
         return response
 
@@ -71,6 +78,37 @@ class PhoneServer:
 
     async def qr_script(self, request):
         return web.FileResponse(STATIC / 'jsqr.js')
+
+    async def zxing_script(self, request):
+        return web.FileResponse(STATIC / 'zxing.js')
+
+    async def zxing_wasm(self, request):
+        return web.FileResponse(STATIC / 'zxing_reader.wasm', headers={'Content-Type': 'application/wasm'})
+
+    @property
+    def pairing_code(self):
+        if time.monotonic() >= self._code_expires:
+            self._pair_code = f'{secrets.randbelow(100_000_000):08d}'
+            self._code_expires = time.monotonic() + 600
+        return self._pair_code
+
+    async def pair_code(self, request):
+        if request.headers.get('Origin') != f'{request.scheme}://{request.host}':
+            return web.json_response({'error': 'Open MyCursor on this PC’s address.'}, status=403)
+        now = time.monotonic()
+        while self._code_failures and now - self._code_failures[0] >= 60:
+            self._code_failures.popleft()
+        if len(self._code_failures) >= 5:
+            return web.json_response({'error': 'Too many attempts. Wait one minute.'}, status=429)
+        try:
+            data = await request.json()
+            code = data.get('code', '')
+        except (ValueError, AttributeError, TypeError):
+            code = ''
+        if not isinstance(code, str) or len(code) != 8 or not code.isascii() or not code.isdigit() or not hmac.compare_digest(code, self.pairing_code):
+            self._code_failures.append(now)
+            return web.json_response({'error': 'Check the current code on your PC.'}, status=401)
+        return web.json_response({'token': self.token})
 
     async def style(self, request):
         return web.FileResponse(STATIC / 'style.css')

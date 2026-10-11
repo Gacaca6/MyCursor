@@ -10,48 +10,35 @@ window.MyCursorScanner = (() => {
     frame = null; stream?.getTracks().forEach(track => track.stop()); stream = null;
     el('scanVideo').srcObject = null; el('scanVideo').hidden = true; el('cameraMark').hidden = false;
   }
-  function decode(source, width, height, region = [0, 0, width, height], limit = 1600, contrast = false) {
-    const [x, y, w, h] = region;
-    const scale = Math.min(1, limit / Math.max(w, h));
+  // ZXing-C++ reads QR codes only; its WASM and script are served by the PC.
+  // No cloud decoder, CDN, or photograph upload is used.
+  window.ZXingWASM.prepareZXingModule({overrides:{locateFile:()=>'/zxing_reader.wasm'}});
+  const options = {formats:['QRCode'],tryHarder:true,tryRotate:true,tryInvert:true,
+    tryDownscale:true,tryDenoise:true,maxNumberOfSymbols:1};
+  async function decode(source, width, height, region = [0, 0, width, height], limit = 2048) {
+    const [x, y, w, h] = region, scale = Math.min(1, limit / Math.max(w, h));
     canvas.width = Math.max(1, Math.round(w * scale)); canvas.height = Math.max(1, Math.round(h * scale));
     ctx.drawImage(source, x, y, w, h, 0, 0, canvas.width, canvas.height);
     const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    if (contrast) {
-      // Expand washed-out screen photographs without applying a hard threshold
-      // that would destroy the decoder's local lighting correction.
-      for (let i = 0; i < pixels.data.length; i += 4) {
-        const gray = .299 * pixels.data[i] + .587 * pixels.data[i+1] + .114 * pixels.data[i+2];
-        const value = Math.max(0, Math.min(255, (gray - 128) * 1.8 + 128));
-        pixels.data[i] = pixels.data[i+1] = pixels.data[i+2] = value;
-      }
-    }
-    return window.jsQR(pixels.data, pixels.width, pixels.height, {inversionAttempts: 'attemptBoth'})?.data;
+    const results = await window.ZXingWASM.readBarcodes(pixels, options);
+    return results.find(result=>result.isValid && result.format === 'QRCode')?.text;
   }
   async function decodePhoto(image, current) {
     const width = image.naturalWidth, height = image.naturalHeight;
-    const initial = decode(image, width, height);
-    if (initial) return initial;
-    const whole = [0, 0, width, height];
-    const regions = [whole];
-    // Preserve small QR modules in full-resolution iPhone photos. Overlapping
-    // crops also find a code off centre without splitting it at tile boundaries.
-    for (const fraction of [.6, .35]) {
-      const w = width * fraction, h = height * fraction;
-      regions.push([(width-w)/2, (height-h)/2, w, h]);
-      for (const y of [0, (height-h)/2, height-h]) {
-        for (const x of [0, (width-w)/2, width-w]) {
-          if (x === (width-w)/2 && y === (height-h)/2) continue;
-          regions.push([x, y, w, h]);
-        }
+    const regions = [[0,0,width,height,2048],[0,0,width,height,4096]];
+    const w = width * .6, h = height * .6;
+    regions.push([(width-w)/2,(height-h)/2,w,h,2048]);
+    for (const y of [0, (height-h)/2, height-h]) {
+      for (const x of [0, (width-w)/2, width-w]) {
+        if (x === (width-w)/2 && y === (height-h)/2) continue;
+        regions.push([x,y,w,h,2048]);
       }
     }
-    for (const contrast of [false, true]) {
-      for (const region of regions) {
-        await new Promise(resolve => setTimeout(resolve, 0));
-        if (current !== epoch || !el('scanDialog').open) return;
-        const code = decode(image, width, height, region, 2000, contrast);
-        if (code) return code;
-      }
+    for (const [x,y,w,h,limit] of regions) {
+      await new Promise(resolve=>setTimeout(resolve,0));
+      if (current !== epoch || !el('scanDialog').open) return;
+      const code = await decode(image,width,height,[x,y,w,h],limit);
+      if (code) return code;
     }
   }
   async function photo(file) {
@@ -63,9 +50,13 @@ window.MyCursorScanner = (() => {
       if (current !== epoch || !el('scanDialog').open) return;
       const code = await decodePhoto(image, current);
       if (current !== epoch || !el('scanDialog').open) return;
-      if (!code) throw new Error('Move closer so the QR fills the photo. Keep all four edges visible.');
+      if (!code) throw new Error('QR unreadable. Connect with the code on your PC instead.');
       accept(code);
-    } catch (error) { el('scanStatus').textContent = error.message || 'Could not read photo. Try again.'; }
+    } catch (error) {
+      if (current !== epoch || !el('scanDialog').open) return;
+      el('scanStatus').textContent = error.message?.includes('pairing code') ? error.message : 'QR unreadable. Connect with the code on your PC instead.';
+      el('codePairing').open = true;
+    }
     finally { URL.revokeObjectURL(url); el('qrPhoto').value = ''; }
   }
   async function camera() {
@@ -79,10 +70,13 @@ window.MyCursorScanner = (() => {
       stream = acquired; const video = el('scanVideo'); video.srcObject = stream;
       video.hidden = false; el('cameraMark').hidden = true; await video.play();
       el('scanStatus').textContent = 'Point at the code on your PC.';
-      function tick() {
+      async function tick() {
         if (current !== epoch) return;
         if (video.readyState >= 2 && video.videoWidth) {
-          const code = decode(video, video.videoWidth, video.videoHeight);
+          let code;
+          try { code = await decode(video, video.videoWidth, video.videoHeight); }
+          catch (_) { el('scanStatus').textContent = 'Use the code on your PC to connect.'; el('codePairing').open = true; return; }
+          if (current !== epoch) return;
           if (code) { try { accept(code); return; } catch (error) { el('scanStatus').textContent = error.message; } }
         }
         frame = requestAnimationFrame(tick);
@@ -90,7 +84,7 @@ window.MyCursorScanner = (() => {
       tick();
     } catch (_) { el('scanStatus').textContent = 'Use Open camera to photograph the code.'; }
   }
-  function open(onCode) { accept = onCode; stop(); el('scanStatus').textContent = 'Scan the code on your PC.'; el('scanDialog').showModal(); camera(); }
+  function open(onCode) { accept = onCode; stop(); el('codeStatus').textContent = ''; el('pcCode').value = '';  el('scanStatus').textContent = 'Scan the code on your PC.'; el('scanDialog').showModal(); camera(); }
   function close() { stop(); if (el('scanDialog').open) el('scanDialog').close(); }
   el('qrPhoto').onchange = event => photo(event.target.files[0]);
   el('closeScan').onclick = close; el('scanDialog').addEventListener('close', stop);

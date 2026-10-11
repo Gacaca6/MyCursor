@@ -1,6 +1,7 @@
 """Phone protocol, ownership and disconnect tests; no real mouse input."""
 import asyncio
 import unittest
+from unittest.mock import patch
 from aiohttp import web, ClientSession, WSMsgType
 from mycursor.phone_server import PhoneServer
 
@@ -135,6 +136,36 @@ class NetworkTests(unittest.IsolatedAsyncioTestCase):
         await self.sync(first)
         self.assertIn(('move', 10, 20), self.driver.events)
         await first.close()
+
+    async def test_pairing_code_requires_same_origin_and_matches_current_code(self):
+        code = self.server.pairing_code
+        self.assertEqual(len(code), 8)
+        async with self.client.post(self.url + '/pair-code', json={'code':code}, headers={'Origin':'http://evil.example'}) as response:
+            self.assertEqual(response.status, 403)
+        for value in (None, [], '\u0661' * 8, 'bad'):
+            async with self.client.post(self.url + '/pair-code', json={'code':value}, headers={'Origin':self.url}) as response:
+                self.assertEqual(response.status, 401)
+        async with self.client.post(self.url + '/pair-code', json={'code':code}, headers={'Origin':self.url}) as response:
+            self.assertEqual(response.status, 200)
+            self.assertEqual((await response.json())['token'], 'test-token')
+        self.server._code_expires = 0
+        # Exercise expiration with a deterministic different replacement.
+        replacement = '11111111' if code != '11111111' else '22222222'
+        with patch('mycursor.phone_server.secrets.randbelow', return_value=int(replacement)):
+            self.assertEqual(self.server.pairing_code, replacement)
+        async with self.client.post(self.url + '/pair-code', json={'code':code}, headers={'Origin':self.url}) as response:
+            self.assertEqual(response.status, 401)
+
+    async def test_pairing_code_throttles_guessing(self):
+        wrong = '11111111' if self.server.pairing_code != '11111111' else '22222222'
+        for _ in range(5):
+            async with self.client.post(self.url + '/pair-code', json={'code':wrong}, headers={'Origin':self.url}) as response:
+                self.assertEqual(response.status, 401)
+        async with self.client.post(self.url + '/pair-code', json={'code':self.server.pairing_code}, headers={'Origin':self.url}) as response:
+            self.assertEqual(response.status, 429)
+        self.server._code_failures = type(self.server._code_failures)(t - 61 for t in self.server._code_failures)
+        async with self.client.post(self.url + '/pair-code', json={'code':self.server.pairing_code}, headers={'Origin':self.url}) as response:
+            self.assertEqual(response.status, 200)
 
     async def test_disconnect_releases_drag_and_allows_reconnect(self):
         ws, _ = await self.pair()

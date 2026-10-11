@@ -120,7 +120,7 @@ def main(argv=None):
     from PIL import ImageTk
     window = tk.Tk()
     window.title('MyCursor · Connect your iPhone')
-    window.geometry('500x730')
+    window.geometry(f'500x{min(780, window.winfo_screenheight() - 70)}')
     window.minsize(440, 590)
     window.configure(bg='#111827')
     # A click-through overlay follows the cursor without taking keyboard focus.
@@ -167,9 +167,12 @@ def main(argv=None):
     style.configure('TButton', padding=9)
     style.configure('TCombobox', padding=5)
     tk.Label(window, text='Your phone is your touchpad.', font=('Segoe UI', 20, 'bold'), bg='#111827', fg='#ecf3ff').pack(pady=(18, 6))
-    tk.Label(window, text='1. Connect iPhone and PC to the same Wi-Fi\n   or connect the PC to your iPhone hotspot.\n2. Scan this code with your iPhone Camera.\n3. Open the link in Safari and slide to move.', justify='left', font=('Segoe UI', 11), bg='#111827', fg='#b8c8df').pack(pady=8)
+    tk.Label(window, text='Keep your phone and PC on the same Wi-Fi.\nScan the QR or enter the pairing code in MyCursor.', justify='left', font=('Segoe UI', 11), bg='#111827', fg='#b8c8df').pack(pady=8)
     qr_label = tk.Label(window, bg='#111827')
     qr_label.pack(pady=8)
+    tk.Label(window, text='Pairing code', font=('Segoe UI', 10), bg='#111827', fg='#b8c8df').pack()
+    code_display = tk.StringVar()
+    tk.Label(window, textvariable=code_display, font=('Consolas', 24, 'bold'), bg='#111827', fg='#7be4c4').pack(pady=(0, 5))
     ip_choice = tk.StringVar(value=ips[0])
     combo = ttk.Combobox(window, values=ips, textvariable=ip_choice, state='readonly', width=28)
     if len(ips) > 1:
@@ -221,6 +224,8 @@ def main(argv=None):
     thread.start()
 
     def tick():
+        code = server.pairing_code
+        code_display.set(f'{code[:4]} {code[4:]}')
         while not events.empty():
             status.set(events.get_nowait())
         if stop.is_set() and result[0] == 0:

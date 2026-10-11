@@ -90,6 +90,22 @@ function acceptCode(value) {
   rememberIntent(true); connect();
 }
 $('scan').onclick = () => { release(); window.MyCursorScanner.open(acceptCode); };
+$('codeForm').onsubmit = async event => {
+  event.preventDefault();
+  const code = $('pcCode').value.replace(/[\s-]/g, '');
+  if (!/^\d{8}$/.test(code)) { $('codeStatus').textContent = 'Enter the eight digits shown on your PC.'; return; }
+  $('connectCode').disabled = true; $('codeStatus').textContent = 'Connecting…';
+  const controller = new AbortController(), timer = setTimeout(()=>controller.abort(),8000);
+  try {
+    const response = await fetch('/pair-code', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code}),signal:controller.signal});
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Could not pair.');
+    if (!$('scanDialog').open) return;
+    acceptCode(`${location.origin}/#${data.token}`);
+    $('pcCode').value = ''; $('codeStatus').textContent = '';
+  } catch (error) { $('codeStatus').textContent = error.name === 'AbortError' ? 'PC unavailable. Check Wi-Fi.' : error.message || 'PC unavailable. Check Wi-Fi.'; }
+  finally { clearTimeout(timer); $('connectCode').disabled = false; }
+};
 $('settings').onclick = () => { release(); $('settingsDialog').showModal(); };
 $('closeSettings').onclick = () => $('settingsDialog').close();
 $('disconnect').onclick = () => { disconnect(); $('settingsDialog').close(); };
