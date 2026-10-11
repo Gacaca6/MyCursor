@@ -1,0 +1,6 @@
+{
+  "name": "mycursor-browser-checks",
+  "private": true,
+  "scripts": {"test:browser": "node tools/test_phone_browser.cjs"},
+  "devDependencies": {"playwright": "1.62.1"}
+}

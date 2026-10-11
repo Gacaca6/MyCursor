@@ -1,0 +1,9 @@
+# mediapipe has no cp313 wheel -- this project must run on Python 3.12.
+mediapipe==1.0.1
+# cv2 comes from opencv-contrib-python, which mediapipe already requires.
+# Do not also install opencv-python: both packages own the same cv2/
+# directory and installing them together leaves a half-overwritten module.
+opencv-contrib-python==5.0.0.93
+numpy==2.2.6
+pystray==0.19.5
+Pillow>=10.4.0

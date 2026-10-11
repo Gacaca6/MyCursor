@@ -1,0 +1,21 @@
+.venv/
+node_modules/
+models/
+__pycache__/
+*.py[cod]
+*.log
+phone-settings.json
+phone-pairing.png
+phone-firewall-status.txt
+phone-touchpad-preview.png
+settings.json
+.env
+.env.*
+dist/
+build/
+*.spec
+*.zip
+# Local hardware repair attempts are unrelated to the shareable input tool.
+tools/check_touchpad.ps1
+tools/fix_touchpad.ps1
+tools/revert_touchpad_fix.ps1
