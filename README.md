@@ -38,6 +38,8 @@ On local HTTP iPhone connections, Scan PC opens the native camera so you can
 photograph the QR code shown on the PC. The app decodes that photo locally; it
 is never uploaded. Live camera scanning is enabled on HTTPS/localhost, where
 browser camera streams are available. Invalid/non-MyCursor QR codes are rejected.
+Photo scanning preserves detail with overlapping crops and contrast correction.
+Keep all four QR edges in the photo; move closer if the code is blurred or tiny.
 Because movement is relative, lift and repeat strokes to reach every screen
 corner; your finger is never limited to mapping one small phone area to the PC.
 The presentation pointer highlights the PC cursor using a click-through overlay.

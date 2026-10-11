@@ -120,7 +120,7 @@ def main(argv=None):
     from PIL import ImageTk
     window = tk.Tk()
     window.title('MyCursor · Connect your iPhone')
-    window.geometry('500x690')
+    window.geometry('500x730')
     window.minsize(440, 590)
     window.configure(bg='#111827')
     # A click-through overlay follows the cursor without taking keyboard focus.
@@ -182,11 +182,16 @@ def main(argv=None):
     def update_qr(*_):
         url = f'http://{ip_choice.get()}:{args.port}/#{token}'
         url_var.set(url)
-        image = qrcode.make(url).convert('RGB').resize((252, 252))
+        # Draw whole square modules at native resolution, never blur them by
+        # resizing to an arbitrary pixel width before photographing the screen.
+        qr = qrcode.QRCode(box_size=7, border=4)
+        qr.add_data(url)
+        qr.make(fit=True)
+        image = qr.make_image(fill_color='black', back_color='white').convert('RGB')
         qr_label.image = ImageTk.PhotoImage(image)
         qr_label.configure(image=qr_label.image)
         # Local artifact makes the pairing code available in this chat too.
-        qrcode.make(url).save(ROOT / 'phone-pairing.png')
+        image.save(ROOT / 'phone-pairing.png')
 
     update_qr()
     combo.bind('<<ComboboxSelected>>', update_qr)

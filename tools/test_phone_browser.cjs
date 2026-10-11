@@ -48,7 +48,7 @@ async function run() {
   await page.waitForFunction(()=>document.getElementById('manifest').href.includes('paired=1'));
   const manifest = await (await page.request.get('http://127.0.0.1:8766/manifest.webmanifest')).json();
   assert.equal(manifest.display,'standalone');
-  assert.equal(manifest.start_url,'/#browser-test-token');
+  assert.equal(manifest.start_url,'/#browser-test-token-0123456789012345678901234');
   assert.equal(manifest.icons.length,2);
   await page.locator('#settings').click();
   assert.equal(await page.locator('#install').isVisible(),false);
@@ -120,6 +120,27 @@ async function run() {
   await page.reload();
   await page.waitForTimeout(300);
   assert.equal(await page.locator('#scan').isVisible(),true);
+  for (const position of ['center', 'corner']) {
+    const oldDecoderResult = await page.evaluate(async position => {
+      const image = new Image(); image.src = `/test-qr.png?photo=${position}`;
+      await image.decode();
+      const canvas = document.createElement('canvas');
+      const scale = 1600 / Math.max(image.width, image.height);
+      canvas.width = Math.round(image.width * scale); canvas.height = Math.round(image.height * scale);
+      const ctx = canvas.getContext('2d'); ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      return !!window.jsQR(pixels.data, pixels.width, pixels.height, {inversionAttempts:'attemptBoth'});
+    }, position);
+    assert.equal(oldDecoderResult, false, 'Fixture must reproduce the original photo downscaling failure');
+    const photo = await (await page.request.get(`http://127.0.0.1:8766/test-qr.png?photo=${position}`)).body();
+    const box = await page.locator('#scan').boundingBox();
+    await page.touchscreen.tap(box.x+box.width/2,box.y+box.height/2);
+    await page.waitForFunction(()=>document.getElementById('scanDialog').open);
+    await capture(photo,`screen-${position}.jpg`);
+    await page.waitForFunction(()=>document.getElementById('status').textContent==='Connected',null,{timeout:30000});
+    await page.locator('#settings').click();
+    await page.locator('#disconnect').click();
+  }
   await scan();
   await page.locator('#drag').click();
   await page.waitForFunction(async()=> (await (await fetch('/test-events')).json()).held.includes('left'));
@@ -131,7 +152,7 @@ async function run() {
   await scan();
   await page.screenshot({path:'phone-touchpad-preview.png',fullPage:true});
   assert.deepEqual(errors,[]);
-  console.log(`PASS (${engine}): real QR photo scanning on HTTP, installed-iPhone detection, disconnect/Scan state, saved disconnect, network loss releases drag, settings-only controls, large-pad layout, paired PWA manifest, service worker, install guide, move, tap, two-finger right click, scroll, drag/release, Unicode typing, slide keys, presentation pointer, pause/resume, reconnect; no browser errors.`);
+  console.log(`PASS (${engine}): camera-sized blurred/rotated JPEGs that fail the old decoder, QR photo scanning on HTTP, installed-iPhone detection, disconnect/Scan state, saved disconnect, network loss releases drag, settings-only controls, large-pad layout, paired PWA manifest, service worker, install guide, move, tap, two-finger right click, scroll, drag/release, Unicode typing, slide keys, presentation pointer, pause/resume, reconnect; no browser errors.`);
   await context.close();
   const browserContext = await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
   const installPage = await browserContext.newPage();
