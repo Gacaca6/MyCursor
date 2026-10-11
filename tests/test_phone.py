@@ -118,7 +118,7 @@ class NetworkTests(unittest.IsolatedAsyncioTestCase):
         async with self.client.get(self.url + '/manifest.webmanifest', cookies={'mycursor_pair':'test-token'}) as response:
             data = await response.json()
             self.assertEqual(data['start_url'], '/#test-token')
-        for path in ('/icon-180.png','/icon-192.png','/icon-512.png','/sw.js'):
+        for path in ('/icon-180.png','/icon-192.png','/icon-512.png','/sw.js','/scanner.js','/jsqr.js'):
             async with self.client.get(self.url + path) as response:
                 self.assertEqual(response.status, 200)
 

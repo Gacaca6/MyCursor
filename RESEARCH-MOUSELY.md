@@ -72,3 +72,25 @@ worker registration on localhost. iPhone supports HTTP Home Screen web apps:
 https://webkit.org/blog/13878/web-push-for-web-apps-on-ios-and-ipados/
 Service workers and wake lock are enabled only on secure origins; they do not
 run on a normal HTTP LAN phone connection.
+
+## Installed-app pairing and layout update
+
+The main screen now shows a full-size touch surface, connection state and a
+Settings icon. Unpaired/disconnected sessions show Scan PC; keyboard, remote,
+pointer speed, pause and installation are inside Settings. Install is hidden
+in standalone display mode, on Apple's navigator.standalone signal, and on
+the browser appinstalled event. Manual disconnects remain disconnected after
+relaunch; network loss returns to Scan and releases held input.
+
+QR decoding uses vendored jsQR 1.4.0 (MIT). Images stay on the phone. On local
+HTTP, a directly tapped native image input opens the phone camera; secure
+origins also support live video scanning. Native camera capture must not
+invalidate the returning image when iOS temporarily backgrounds the app.
+The touchpad ignores taps on its Scan button so preventDefault does not swallow
+the button's touchscreen click.
+
+Browser checks use real touchscreen taps to open Scan and the native file
+chooser, decode generated QR images, reject unrelated codes, and connect
+through the real authenticated WebSocket receiver (using a fake OS input
+driver). They test disconnect/relaunch and network-loss behavior, installed-app
+signals, and the complete mouse/keyboard/remote flows in Chromium and WebKit.

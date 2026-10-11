@@ -18,14 +18,26 @@ or `Start Phone Touchpad.cmd` in this folder. A pairing window opens on the PC.
 
 1. Put the PC and iPhone on the same Wi-Fi, or connect the PC to your iPhone's
    Personal Hotspot.
-2. Scan the PC's QR code with the iPhone Camera and open the link in Safari.
+2. On first use, scan the PC's QR code with the iPhone Camera and open the link
+   in Chrome or Safari. Install the Home Screen app through Settings → Install app.
+   Inside the installed app, tap **Scan PC** to pair again.
 3. Slide one finger to move, tap to click, use two fingers to scroll or tap for
-   right click. Use **Drag** to hold a selection/window, then **Drop / release**.
+   right click. Tap the **hand icon** to hold a selection/window, then tap it
+   again to release.
 
 The phone has separate click buttons, double click, middle click, speed controls,
 a keyboard/text panel, app shortcuts, slide navigation and volume/media controls.
-**Large pad** is the default and fills the available screen. Tap **More controls**
-to show settings and the keyboard/remote panels, then **Large pad** to return.
+The touchpad fills the screen. The **gear icon** opens Settings, including
+pointer speed, pause, keyboard, remote controls, installation and pairing help.
+The main screen shows **Connected** after the receiver accepts the scanned code.
+**Settings → Disconnect** releases held input and returns to **Scan PC**. A lost
+network connection also returns to Scan; deliberate disconnects stay disconnected
+even when you reopen the app.
+
+On local HTTP iPhone connections, Scan PC opens the native camera so you can
+photograph the QR code shown on the PC. The app decodes that photo locally; it
+is never uploaded. Live camera scanning is enabled on HTTPS/localhost, where
+browser camera streams are available. Invalid/non-MyCursor QR codes are rejected.
 Because movement is relative, lift and repeat strokes to reach every screen
 corner; your finger is never limited to mapping one small phone area to the PC.
 The presentation pointer highlights the PC cursor using a click-through overlay.
@@ -43,7 +55,9 @@ Phone mode only needs `requirements-phone.txt`; it does not load MediaPipe,
 OpenCV, or the camera. Dependencies install automatically through the launcher.
 The QR pairing remains valid across restarts on the same address. If you change
 Wi-Fi/hotspot, restart the PC receiver and scan the updated QR. You can bookmark
-the page. Tap **Install**, then use Chrome/Safari's **Share > Add to Home Screen**.
+the page. Open **Settings → Install app**, then use Chrome/Safari's
+**Share > Add to Home Screen**. Install is hidden in the installed Home Screen
+app and immediately after a browser's installation-complete event.
 Keep **Open as Web App** enabled if shown. The app icon, standalone manifest and
 paired launch address let the iPhone open it as its own Home Screen app. This
 works over local HTTP on iPhone. Offline shell caching/service workers and a

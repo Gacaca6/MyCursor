@@ -38,6 +38,8 @@ class PhoneServer:
         self.app = web.Application(client_max_size=16384, middlewares=[self.headers])
         self.app.router.add_get('/', self.index)
         self.app.router.add_get('/app.js', self.script)
+        self.app.router.add_get('/scanner.js', self.scanner_script)
+        self.app.router.add_get('/jsqr.js', self.qr_script)
         self.app.router.add_get('/style.css', self.style)
         self.app.router.add_get('/health', self.health)
         self.app.router.add_post('/pair', self.pair_cookie)
@@ -54,7 +56,7 @@ class PhoneServer:
             response.headers.update({
                 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff',
                 'Referrer-Policy': 'no-referrer', 'X-Frame-Options': 'DENY',
-                'Content-Security-Policy': "default-src 'self'; connect-src 'self'; style-src 'self'; script-src 'self'; frame-ancestors 'none'",
+                'Content-Security-Policy': "default-src 'self'; connect-src 'self'; img-src 'self' blob:; media-src 'self' blob:; style-src 'self'; script-src 'self'; frame-ancestors 'none'",
             })
         return response
 
@@ -63,6 +65,12 @@ class PhoneServer:
 
     async def script(self, request):
         return web.FileResponse(STATIC / 'app.js')
+
+    async def scanner_script(self, request):
+        return web.FileResponse(STATIC / 'scanner.js')
+
+    async def qr_script(self, request):
+        return web.FileResponse(STATIC / 'jsqr.js')
 
     async def style(self, request):
         return web.FileResponse(STATIC / 'style.css')
