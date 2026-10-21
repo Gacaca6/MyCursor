@@ -1,0 +1,73 @@
+{
+  "renderer": "Goldie compose() + native canvas web-capture adapter",
+  "scenes": [
+    {
+      "id": "touchpad",
+      "image": "pad",
+      "headline": [
+        "Your phone.",
+        "Your mouse."
+      ],
+      "sub": "Tap, scroll and drag on your Windows PC.",
+      "layout": "classic",
+      "dark": false
+    },
+    {
+      "id": "present",
+      "image": "present",
+      "headline": [
+        "Own the room."
+      ],
+      "sub": "Change slides. Keep your notes close.",
+      "layout": "tilt",
+      "dark": true
+    },
+    {
+      "id": "media",
+      "image": "media",
+      "headline": [
+        "Stay on",
+        "the sofa."
+      ],
+      "sub": "Play, pause and turn it up from your phone.",
+      "layout": "hero",
+      "dark": false
+    },
+    {
+      "id": "share",
+      "image": "share",
+      "headline": [
+        "Send it.",
+        "Skip the cable."
+      ],
+      "sub": "Move files between your phone and PC.",
+      "layout": "classic",
+      "dark": true
+    },
+    {
+      "id": "typing",
+      "image": "typing",
+      "headline": [
+        "Type here.",
+        "See it there."
+      ],
+      "sub": "Your phone keyboard. Your Windows PC.",
+      "layout": "tilt",
+      "dark": false
+    }
+  ],
+  "outputs": [
+    "launch-square.png",
+    "launch-wide.png",
+    "media-feed.png",
+    "media-story.png",
+    "present-feed.png",
+    "present-story.png",
+    "share-feed.png",
+    "share-story.png",
+    "touchpad-feed.png",
+    "touchpad-story.png",
+    "typing-feed.png",
+    "typing-story.png"
+  ]
+}

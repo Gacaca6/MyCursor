@@ -1,0 +1,94 @@
+name: Render MyCursor beta launch
+on:
+  push:
+    branches: [codex/mycursor-beta-launch-20261021]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: mycursor-beta-launch
+  cancel-in-progress: true
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CHROME_PATH: /usr/bin/google-chrome
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/checkout@v4
+        with:
+          repository: software-mansion-labs/goldie
+          ref: 699578cefe908141433489125599d12a29a9f8db
+          path: tools/goldie
+      - uses: actions/checkout@v4
+        with:
+          repository: Tejashmakwana/motionmaxxing
+          ref: 8c8ec0f2a6f6c9a0da15cd24f7b1298ab298368c
+          path: tools/motionmaxxing
+      - name: Install render dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install numpy
+          npm install --prefix launch --no-audit --no-fund
+      - name: Goldie graphics and seek check
+        run: |
+          node --experimental-strip-types launch/graphics.mjs
+          node launch/qa.mjs
+          node tools/motionmaxxing/scripts/lint.mjs launch/film/index.html --samples 30 --json | tee launch/lint.json
+      - name: Compose and master original score
+        run: |
+          python launch/score.py
+          ffmpeg -y -hide_banner -loglevel warning -i launch/film/audio/score.wav -af loudnorm=I=-14:TP=-1.5:LRA=7 -c:a aac -b:a 192k launch/film/audio/score.m4a
+      - name: Render the 90-second film
+        run: |
+          node tools/motionmaxxing/scripts/render.mjs launch/film/index.html launch/film/final.mp4 --audio launch/film/audio/score.m4a --crf 20 --preset fast
+      - name: Inspect the encoded film
+        run: |
+          python tools/motionmaxxing/scripts/look.py launch/film/final.mp4 --out launch/look-final --expect 90 --expect-audio --strict | tee launch/render-check.txt
+          ffprobe -v error -show_entries format=duration,size:stream=codec_name,width,height,avg_frame_rate -of json launch/film/final.mp4 > launch/probe.json
+      - name: Package final assets
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: MyCursor-beta-launch
+          path: |
+            launch/film/final.mp4
+            launch/film/final.mp4.events.json
+            launch/graphics/
+            launch/look-final/
+            launch/seek-check.json
+            launch/lint.json
+            launch/probe.json
+            launch/render-check.txt
+            launch/NOTE.md
+            launch/LAUNCH-COPY.md
+            launch/README.md
+            launch/BRIEF.md
+            launch/STORYBOARD.md
+          retention-days: 14
+      - name: Package editable source
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: MyCursor-editable-source
+          path: |
+            launch/film/index.html
+            launch/film/assets/
+            launch/film/runtime/
+            launch/graphics.mjs
+            launch/score.py
+            launch/qa.mjs
+            launch/package.json
+            launch/licenses/
+            launch/README.md
+            launch/STORYBOARD.md
+            launch/BRIEF.md
+          retention-days: 14
