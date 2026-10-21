@@ -2,6 +2,7 @@ name: Render MyCursor beta launch
 on:
   push:
     branches: [codex/mycursor-beta-launch-20261021]
+    paths: ['launch/film/index.html', 'launch/score.py', 'launch/graphics.mjs']
   workflow_dispatch:
 permissions:
   contents: read

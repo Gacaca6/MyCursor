@@ -1,0 +1,61 @@
+name: Master and deliver MyCursor launch
+on:
+  push:
+    branches: [codex/mycursor-beta-launch-20261021]
+    paths: ['.github/workflows/finalize-launch.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  master:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: MyCursor-beta-launch
+          run-id: 39636830809
+          github-token: ${{ github.token }}
+          path: deliver
+      - uses: actions/checkout@v4
+        with:
+          repository: Tejashmakwana/motionmaxxing
+          ref: 8c8ec0f2a6f6c9a0da15cd24f7b1298ab298368c
+          path: tools/motionmaxxing
+      - name: Master audio with additional headroom
+        shell: bash
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          ffmpeg -y -hide_banner -loglevel warning -i deliver/film/final.mp4 -c:v copy -af volume=-2dB -c:a aac -b:a 192k -movflags +faststart deliver/film/MyCursor-beta-launch-90s.mp4
+      - name: Verify final master
+        shell: bash
+        run: |
+          cp deliver/film/final.mp4.events.json deliver/film/MyCursor-beta-launch-90s.mp4.events.json
+          python tools/motionmaxxing/scripts/look.py deliver/film/MyCursor-beta-launch-90s.mp4 --out deliver/final-check --expect 90 --expect-audio --strict | tee deliver/final-check.txt
+          ffprobe -v error -show_entries format=duration,size:stream=codec_name,width,height,avg_frame_rate -of json deliver/film/MyCursor-beta-launch-90s.mp4 > deliver/final-probe.json
+          python - <<'PY'
+          from pathlib import Path
+          note=Path('deliver/NOTE.md')
+          report=Path('deliver/final-check.txt').read_text()
+          note.write_text(note.read_text()+'\n## Final encoded master checks\n\n```text\n'+report+'\n```\n')
+          PY
+      - name: Upload finished campaign
+        uses: actions/upload-artifact@v4
+        with:
+          name: MyCursor-FINAL-campaign
+          path: |
+            deliver/film/MyCursor-beta-launch-90s.mp4
+            deliver/graphics/
+            deliver/final-check/
+            deliver/final-check.txt
+            deliver/final-probe.json
+            deliver/seek-check.json
+            deliver/lint.json
+            deliver/NOTE.md
+            deliver/LAUNCH-COPY.md
+            deliver/README.md
+            deliver/BRIEF.md
+            deliver/STORYBOARD.md
+          retention-days: 14
