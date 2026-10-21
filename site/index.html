@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MyCursor — your phone is the only mouse you need</title>
+<meta name="description" content="MyCursor turns your phone into a touchpad, presentation clicker and media remote for Windows. Free, no account, and it works without internet.">
+<meta property="og:title" content="MyCursor — your phone is the only mouse you need">
+<meta property="og:description" content="Touchpad, presentation clicker and media remote for Windows, on the phone you already carry. Free. Works offline.">
+<meta property="og:image" content="assets/device-present.webp">
+<meta name="theme-color" content="#f4f2ec">
+<link rel="icon" href="assets/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f4f2ec;--paper-2:#ebe8df;--ink:#141715;--ink-2:#3c423e;--muted:#646b66;--rule:#d9d5ca;
+  --mint:#96e9ca;--mint-deep:#0d6e52;--night:#101113;--night-2:#191b1e;--night-ink:#eef0ee;--night-muted:#9ba39f;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Instrument Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --wrap:min(1160px,calc(100% - 40px));
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 17px/1.6 var(--body);font-synthesis:none;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%;height:auto}
+a{color:inherit}
+.wrap{width:var(--wrap);margin-inline:auto}
+h1,h2,h3{font-family:var(--display);font-weight:800;letter-spacing:-.025em;line-height:1.02;margin:0}
+p{margin:0}
+.eyebrow{font:600 13px/1 var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--mint-deep)}
+
+/* Header */
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--paper) 86%,transparent);backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid transparent;transition:border-color .3s}
+.top.scrolled{border-color:var(--rule)}
+.top .wrap{display:flex;align-items:center;gap:28px;height:68px}
+.brand{display:flex;align-items:center;gap:10px;font:800 21px/1 var(--display);letter-spacing:-.03em;text-decoration:none}
+.brand img{width:30px;height:30px;border-radius:8px}
+.brand b{color:var(--mint-deep)}
+.top nav{display:flex;gap:26px;margin-left:auto;font-size:15px;color:var(--ink-2)}
+.top nav a{text-decoration:none}.top nav a:hover{color:var(--ink)}
+.button{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;border-radius:999px;background:var(--ink);color:var(--paper);font:600 15.5px/1 var(--body);text-decoration:none;transition:transform .25s var(--ease),background .25s}
+.button:hover{transform:translateY(-1px);background:#000}
+.button svg{width:18px;height:18px}
+.button.small{padding:11px 18px;font-size:14.5px}
+.link{font-weight:600;text-decoration:none;border-bottom:1.5px solid currentColor;padding-bottom:2px}
+
+/* Hero */
+.hero{padding:clamp(48px,9vw,110px) 0 clamp(56px,8vw,96px);overflow:hidden}
+.hero .wrap{display:grid;grid-template-columns:1.08fr .92fr;gap:clamp(32px,5vw,72px);align-items:center}
+.hero h1{font-size:clamp(46px,7.4vw,96px)}
+.hero h1 em{font-style:normal;color:var(--mint-deep)}
+.hero .lede{margin-top:26px;max-width:34ch;font-size:clamp(18px,1.6vw,21px);color:var(--ink-2)}
+.cta{display:flex;flex-wrap:wrap;align-items:center;gap:22px;margin-top:36px}
+.fine{margin-top:16px;font-size:14px;color:var(--muted)}
+.phones{position:relative;height:clamp(520px,56vw,700px)}
+.device{display:block;height:auto;filter:drop-shadow(0 34px 38px rgb(20 23 21 / .2)) drop-shadow(0 6px 10px rgb(20 23 21 / .12))}
+.phones .device{position:absolute;width:clamp(230px,25vw,320px)}
+.device.back{left:0;top:6%;transform:rotate(-6deg)}
+.device.front{right:0;top:0;transform:rotate(4deg)}
+.tag{position:absolute;z-index:2;padding:10px 14px;border-radius:14px;background:var(--paper);border:1px solid var(--rule);box-shadow:0 12px 30px -16px #1417154d;font:600 14px/1.2 var(--body);white-space:nowrap}
+.tag span{display:block;font-weight:400;font-size:12.5px;color:var(--muted);margin-top:3px}
+.tag.one{left:-3%;top:40%}.tag.two{right:-4%;bottom:-6%}
+@media (prefers-reduced-motion:no-preference){
+  .device.front{animation:rise .9s var(--ease) both .1s}.device.back{animation:rise .9s var(--ease) both}
+  .tag{animation:fade .8s var(--ease) both .6s}
+  @keyframes rise{from{opacity:0;translate:0 26px}}
+  @keyframes fade{from{opacity:0;translate:0 10px}}
+}
+
+/* Facts */
+.facts{border-block:1px solid var(--rule)}
+.facts .wrap{display:grid;grid-template-columns:repeat(4,1fr)}
+.facts div{padding:26px 22px 26px 0}
+.facts div+div{padding-left:22px;border-left:1px solid var(--rule)}
+.facts strong{display:block;font:700 19px/1.2 var(--display);letter-spacing:-.01em}
+.facts span{display:block;margin-top:6px;font-size:14.5px;color:var(--muted);line-height:1.45}
+
+/* Chapters */
+.chapter{padding:clamp(72px,10vw,140px) 0}
+.chapter .wrap{display:grid;grid-template-columns:1fr 1fr;gap:clamp(36px,6vw,96px);align-items:center}
+.chapter h2{font-size:clamp(36px,4.8vw,62px);margin-top:16px}
+.chapter .body{margin-top:22px;max-width:44ch;color:var(--ink-2);font-size:18px}
+.points{list-style:none;margin:30px 0 0;padding:0;display:grid;gap:14px}
+.points li{display:grid;grid-template-columns:22px 1fr;gap:12px;font-size:16px;color:var(--ink-2)}
+.points li::before{content:"";width:9px;height:9px;margin-top:9px;border-radius:50%;background:var(--mint-deep)}
+.points b{color:var(--ink);font-weight:600}
+.shots{position:relative;display:flex;justify-content:center;align-items:flex-start;gap:22px}
+.shots .device{width:min(300px,47%)}
+.shots .device.lower{margin-top:70px}
+
+.night{background:var(--night);color:var(--night-ink)}
+.night .eyebrow{color:var(--mint)}
+.night .body,.night .points li{color:var(--night-muted)}
+.night .points b{color:var(--night-ink)}
+.night .points li::before{background:var(--mint)}
+.night .device{filter:drop-shadow(0 40px 48px #000b) drop-shadow(0 0 1px #000)}
+.chapter.flip .copy{order:2}
+
+.duo{padding:clamp(72px,10vw,140px) 0;border-top:1px solid var(--rule)}
+.duo .wrap{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,4vw,56px)}
+.panel{display:grid;grid-template-columns:1fr auto;gap:28px;align-items:end;padding:clamp(26px,3.4vw,44px);border-radius:30px;background:var(--paper-2)}
+.panel h3{font-size:clamp(28px,3vw,40px);margin-top:14px}
+.panel p{margin-top:14px;color:var(--ink-2);font-size:16.5px}
+.panel .device{width:clamp(160px,16vw,210px)}
+
+/* Built for Africa */
+.place{padding:clamp(80px,11vw,150px) 0;background:linear-gradient(180deg,var(--paper),var(--paper-2))}
+.place .wrap{display:grid;grid-template-columns:.9fr 1.1fr;gap:clamp(36px,6vw,90px)}
+.place h2{font-size:clamp(38px,5.4vw,70px)}
+.place .lede{margin-top:24px;font-size:19px;color:var(--ink-2);max-width:36ch}
+.ways{display:grid;gap:0;border-top:1px solid var(--rule)}
+.ways div{display:grid;grid-template-columns:150px 1fr;gap:22px;padding:24px 0;border-bottom:1px solid var(--rule)}
+.ways strong{font:700 18px/1.3 var(--display)}
+.ways p{color:var(--ink-2);font-size:16px}
+.ways small{display:block;margin-top:6px;color:var(--muted);font-size:13.5px}
+
+/* Steps */
+.steps{padding:clamp(72px,10vw,130px) 0}
+.steps h2{font-size:clamp(36px,4.6vw,58px);max-width:16ch}
+.steps ol{list-style:none;margin:48px 0 0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(20px,3vw,40px);counter-reset:s}
+.steps li{counter-increment:s;padding-top:22px;border-top:2px solid var(--ink)}
+.steps li::before{content:counter(s,decimal-leading-zero);font:800 15px/1 var(--display);color:var(--mint-deep)}
+.steps h3{font-size:24px;margin-top:14px;letter-spacing:-.015em}
+.steps p{margin-top:10px;color:var(--ink-2);font-size:16px}
+
+/* Compare */
+.compare{padding:0 0 clamp(72px,10vw,130px)}
+.compare h2{font-size:clamp(32px,4vw,50px)}
+.table{margin-top:34px;overflow-x:auto;border:1px solid var(--rule);border-radius:22px;background:#fbfaf6}
+table{width:100%;border-collapse:collapse;min-width:620px;font-size:15.5px}
+th,td{padding:17px 20px;text-align:left;border-bottom:1px solid var(--rule)}
+tr:last-child td{border-bottom:0}
+thead th{font:700 15px/1.2 var(--display);background:var(--paper-2)}
+thead th.us{background:var(--ink);color:var(--paper)}
+td.us{font-weight:600;background:#eef6f1}
+td.no{color:var(--muted)}
+
+/* FAQ */
+.faq{padding:clamp(72px,10vw,130px) 0;border-top:1px solid var(--rule)}
+.faq .wrap{display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(32px,6vw,90px)}
+.faq h2{font-size:clamp(34px,4.4vw,56px)}
+details{border-bottom:1px solid var(--rule)}
+details:first-child{border-top:1px solid var(--rule)}
+summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:20px;padding:22px 0;font:600 18px/1.35 var(--body)}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font:400 26px/1 var(--body);color:var(--mint-deep);transition:transform .3s var(--ease)}
+details[open] summary::after{transform:rotate(45deg)}
+details p{padding:0 0 22px;color:var(--ink-2);max-width:62ch}
+
+/* Final */
+.final{background:var(--night);color:var(--night-ink);padding:clamp(80px,11vw,150px) 0;text-align:left}
+.final .wrap{display:grid;grid-template-columns:1.3fr .7fr;gap:40px;align-items:end}
+.final h2{font-size:clamp(42px,6.4vw,86px)}
+.final h2 em{font-style:normal;color:var(--mint)}
+.final .button{background:var(--mint);color:#0c1d16}.final .button:hover{background:#b4f1da}
+.final .fine{color:var(--night-muted)}
+footer{background:var(--night);color:var(--night-muted);border-top:1px solid #23262a;font-size:14px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:14px 28px;align-items:center;padding:28px 0}
+footer a{text-decoration:none}footer a:hover{color:var(--night-ink)}
+footer .made{margin-left:auto}
+
+:focus-visible{outline:2.5px solid var(--mint-deep);outline-offset:3px;border-radius:6px}
+
+/* Small screens */
+@media (max-width:900px){
+  .top nav{display:none}
+  .hero .wrap,.chapter .wrap,.duo .wrap,.place .wrap,.faq .wrap,.final .wrap{grid-template-columns:1fr}
+  .chapter.flip .copy{order:0}
+  .facts .wrap{grid-template-columns:1fr 1fr}
+  .facts div:nth-child(3){border-left:0;padding-left:0}
+  .facts div:nth-child(n+3){border-top:1px solid var(--rule)}
+  .steps ol{grid-template-columns:1fr}
+  .ways div{grid-template-columns:1fr;gap:6px}
+}
+@media (max-width:560px){
+  .top .button.small{padding:10px 14px}
+  .phones{height:500px}
+  .phones .device{width:210px}
+  .device.back{left:-3%}.device.front{right:-3%}
+  .panel{grid-template-columns:1fr}
+  .panel .device{justify-self:center}
+  .tag{display:none}
+  footer .made{margin-left:0}
+}
+</style>
+</head>
+<body>
+
+<header class="top" id="top">
+  <div class="wrap">
+    <a class="brand" href="#"><img src="assets/icon.png" alt=""><span>MyCursor<b>.</b></span></a>
+    <nav aria-label="Sections"><a href="#present">For presenters</a><a href="#offline">Works offline</a><a href="#how">How it works</a><a href="#faq">Questions</a></nav>
+    <a class="button small" href="https://github.com/Gacaca6/MyCursor/releases/latest/download/MyCursor.exe">Download</a>
+  </div>
+</header>
+
+<main>
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <p class="eyebrow">Free for Windows · iPhone &amp; Android</p>
+      <h1>Your phone is the only <em>mouse</em> you need.</h1>
+      <p class="lede">MyCursor turns the phone in your pocket into a touchpad, a presentation clicker and a TV remote for any Windows PC — over Wi-Fi, over Bluetooth, or with no internet at all.</p>
+      <div class="cta">
+        <a class="button" href="https://github.com/Gacaca6/MyCursor/releases/latest/download/MyCursor.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12m-5-5 5 5 5-5M5 20h14"/></svg>Download for Windows</a>
+        <a class="link" href="#how">See how it works</a>
+      </div>
+      <p class="fine">27 MB · Windows 10 &amp; 11 · No account · Nothing to install on the phone</p>
+    </div>
+    <div class="phones" aria-hidden="true">
+      <img class="device back" src="assets/device-pad.webp" alt="" width="900" height="1859">
+      <img class="device front" src="assets/device-present.webp" alt="" width="900" height="1859">
+      <div class="tag one">Real Windows pointer<span>Follows your mouse settings</span></div>
+      <div class="tag two">Speaker notes on your phone<span>Slides change from anywhere</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="facts" aria-label="At a glance">
+  <div class="wrap">
+    <div><strong>Feels like a mouse</strong><span>Windows' own cursor, speed and acceleration.</span></div>
+    <div><strong>No internet needed</strong><span>Your PC can make its own Wi-Fi.</span></div>
+    <div><strong>Made for talks</strong><span>Notes, timer, big Next button.</span></div>
+    <div><strong>Free and open</strong><span>No ads, no account, no subscription.</span></div>
+  </div>
+</section>
+
+<section class="chapter" id="pad">
+  <div class="wrap">
+    <div class="copy">
+      <p class="eyebrow">Touchpad</p>
+      <h2>Forget the broken touchpad.</h2>
+      <p class="body">Slide, tap and scroll on your phone and the PC responds like it has a real mouse plugged in. Even on laptops with no working touchpad at all.</p>
+      <ul class="points">
+        <li><span><b>The real Windows pointer</b>, moved the way a USB mouse moves it, with your own speed settings.</span></li>
+        <li><span><b>A thumb-sized scroll wheel</b> cut into the pad. Flick for long pages, tap for middle click.</span></li>
+        <li><span><b>Type live</b>: every letter, correction and Backspace appears on the PC as you type.</span></li>
+        <li><span><b>Pinch to zoom</b>, hold Left to drag, two-finger tap to right-click.</span></li>
+      </ul>
+    </div>
+    <div class="shots" aria-hidden="true">
+      <img class="device" src="assets/device-pad.webp" alt="" width="900" height="1859" loading="lazy">
+      <img class="device lower" src="assets/device-typing.webp" alt="" width="900" height="1859" loading="lazy">
+    </div>
+  </div>
+</section>
+
+<section class="chapter night flip" id="present">
+  <div class="wrap">
+    <div class="copy">
+      <p class="eyebrow">For lecturers, speakers and pitches</p>
+      <h2>A clicker that can’t run out of battery.</h2>
+      <p class="body">Walk away from the laptop. Your phone shows what’s next, how long you have, and what you meant to say.</p>
+      <ul class="points">
+        <li><span><b>Speaker notes from PowerPoint</b> on your phone, for the current slide.</span></li>
+        <li><span><b>Slides change even if PowerPoint isn’t the active window</b> — no lost clicks after you touched something else.</span></li>
+        <li><span><b>A talk timer</b> that warns you before time is up.</span></li>
+        <li><span><b>Black screen and zoom</b> that follows your pointer, back to normal in one tap.</span></li>
+        <li><span>Works with <b>Google Slides and PDFs</b> too.</span></li>
+      </ul>
+    </div>
+    <div class="shots" aria-hidden="true">
+      <img class="device" src="assets/device-present.webp" alt="" width="900" height="1859" loading="lazy">
+    </div>
+  </div>
+</section>
+
+<section class="duo" aria-label="More modes">
+  <div class="wrap">
+    <div class="panel">
+      <div><p class="eyebrow">Media</p><h3>Movie night, from the sofa.</h3><p>Play, pause, skip, volume and fullscreen — plus a sleep timer that puts the PC to sleep when the film ends.</p></div>
+      <img class="device" src="assets/device-media.webp" alt="" width="900" height="1859" loading="lazy">
+    </div>
+    <div class="panel">
+      <div><p class="eyebrow">Share</p><h3>Send it to your PC. No cable, no data.</h3><p>Photos and documents land in your PC’s Downloads. Right-click any file on the PC → Send to → MyCursor phone. Transfers survive Wi-Fi drops, and nothing goes through the internet.</p></div>
+      <img class="device" src="assets/device-share.webp" alt="" width="900" height="1859" loading="lazy">
+    </div>
+  </div>
+</section>
+
+<section class="place" id="offline">
+  <div class="wrap">
+    <div>
+      <p class="eyebrow">Made in Rwanda</p>
+      <h2>Built for where the internet isn’t.</h2>
+      <p class="lede">MyCursor talks to your PC directly. It never needs the internet, a router, mobile data or a cloud account.</p>
+    </div>
+    <div class="ways">
+      <div><strong>Same Wi-Fi</strong><p>The everyday way. Scan the code once and the app finds your PC by name on any network.</p></div>
+      <div><strong>Offline Wi-Fi</strong><p>No router? Your PC makes its own Wi-Fi in one click. Join it, and you’re connected — no internet involved.<small>Uses Windows Mobile Hotspot; most Wi-Fi laptops support it.</small></p></div>
+      <div><strong>Bluetooth</strong><p>Android phones can connect by Bluetooth and keep their own internet for everything else.<small>iPhone browsers don’t allow Bluetooth for web apps, so iPhones use Wi-Fi.</small></p></div>
+    </div>
+  </div>
+</section>
+
+<section class="steps" id="how">
+  <div class="wrap">
+    <p class="eyebrow">How it works</p>
+    <h2>Set up in three steps.</h2>
+    <ol>
+      <li><h3>Run MyCursor on your PC</h3><p>Download MyCursor.exe and open it. It starts with Windows from then on, so it’s ready whenever you are.</p></li>
+      <li><h3>Scan the code</h3><p>Point your phone’s camera at the code on the PC and open the link. No app store, nothing to install.</p></li>
+      <li><h3>Add it to your Home Screen</h3><p>One tap later, MyCursor sits on your phone like any app. Open it and it connects.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="compare" aria-labelledby="compare-title">
+  <div class="wrap">
+    <h2 id="compare-title">One phone instead of three gadgets.</h2>
+    <div class="table">
+      <table>
+        <thead><tr><th scope="col"></th><th scope="col" class="us">MyCursor</th><th scope="col">Presentation clicker</th><th scope="col">Mouse</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Moves the pointer</th><td class="us">Yes</td><td class="no">Rarely</td><td>Yes</td></tr>
+          <tr><th scope="row">Changes slides from across the room</th><td class="us">Yes</td><td>Yes</td><td class="no">No</td></tr>
+          <tr><th scope="row">Speaker notes and timer in your hand</th><td class="us">Yes</td><td class="no">No</td><td class="no">No</td></tr>
+          <tr><th scope="row">Typing, files and media control</th><td class="us">Yes</td><td class="no">No</td><td class="no">No</td></tr>
+          <tr><th scope="row">Batteries or a USB receiver to lose</th><td class="us">None</td><td>Yes</td><td>Often</td></tr>
+          <tr><th scope="row">Price</th><td class="us">Free</td><td>Bought separately</td><td>Bought separately</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="faq" id="faq">
+  <div class="wrap">
+    <div><p class="eyebrow">Questions</p><h2>Good to know.</h2></div>
+    <div>
+      <details><summary>Is MyCursor really free?</summary><p>Yes. No ads, no account and no subscription. Your files and typing never leave your own devices.</p></details>
+      <details><summary>Which phones and computers does it work with?</summary><p>Any iPhone or Android phone with a modern browser, controlling a Windows 10 or 11 PC. Mac support is not available yet.</p></details>
+      <details><summary>Do I need internet?</summary><p>No. Your phone talks to your PC directly over the same Wi-Fi, over the PC’s own offline Wi-Fi, or (on Android) over Bluetooth.</p></details>
+      <details><summary>Can it see my screen or my files?</summary><p>No. MyCursor only sends pointer, keyboard and slide actions to your own PC. It never sees your screen, and files move only when you choose to send them.</p></details>
+      <details><summary>Windows says “Windows protected your PC”. Is that safe?</summary><p>Windows shows this for new apps that aren’t yet digitally signed. Choose More info → Run anyway. Then click Yes when asked to let phones connect; this only opens MyCursor to your local network.</p></details>
+      <details><summary>Do I need PowerPoint?</summary><p>No. Next, Back and black screen work with PowerPoint, Google Slides, PDFs and most slide apps. Speaker notes on the phone need PowerPoint.</p></details>
+      <details><summary>My laptop has no working touchpad. Will the pointer show?</summary><p>Yes. Windows hides its pointer when it finds no mouse; MyCursor brings the real pointer back while it runs and restores your settings when it closes.</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="final">
+  <div class="wrap">
+    <h2>Leave the mouse <em>at home.</em></h2>
+    <div>
+      <a class="button" href="https://github.com/Gacaca6/MyCursor/releases/latest/download/MyCursor.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12m-5-5 5 5 5-5M5 20h14"/></svg>Download for Windows</a>
+      <p class="fine">Free · Windows 10 &amp; 11 · <a href="https://github.com/Gacaca6/MyCursor/blob/main/GET-STARTED.md">Setup guide</a></p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a href="https://github.com/Gacaca6/MyCursor/blob/main/GET-STARTED.md">Setup guide</a>
+    <a href="https://github.com/Gacaca6/MyCursor/releases">All releases</a>
+    <span>&copy; 2026 MyCursor. All rights reserved.</span>
+    <span>iPhone frame: <a href="https://www.figma.com/community/file/1600584030566600974/iphone-17-17-pro-device-frames">“iPhone 17 &amp; 17 Pro Device Frames”</a> by Kelly Hu, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>, with app screens added</span>
+    <span class="made">Made in Rwanda</span>
+  </div>
+</footer>
+
+<script>
+  // A hairline under the header once the page scrolls.
+  const header = document.getElementById('top');
+  const mark = () => header.classList.toggle('scrolled', scrollY > 8);
+  addEventListener('scroll', mark, {passive: true}); mark();
+</script>
+</body>
+</html>
