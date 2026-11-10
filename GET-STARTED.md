@@ -8,13 +8,24 @@ thumb, type, and change slides. No account, no internet, nothing to buy.
 1. Download **MyCursor.exe** and double-click it.
 2. If Windows says *"Windows protected your PC"*, click **More info → Run anyway**.
    (This appears for new apps that are not yet signed; MyCursor is safe to run.)
-3. When Windows asks *"Do you want to allow this app to make changes?"*, click
+3. The MyCursor logo appears while it installs (a few seconds, no questions).
+   MyCursor is then in your **Start menu** and on your **desktop**.
+4. When Windows asks *"Do you want to allow this app to make changes?"*, click
    **Yes**. This only lets your phone reach MyCursor on your local network.
 
-A window opens with a big square code (QR code). From now on MyCursor starts by
-itself whenever you sign in to Windows, so your phone can connect straight away.
-Closing its window keeps it running in the taskbar; use **Quit** to stop it
-(or untick **Start MyCursor with Windows**).
+To update later, download the new **MyCursor.exe** and open it: it replaces
+the old version and keeps your phone paired. To remove MyCursor, open
+**Settings › Apps › Installed apps**, find **MyCursor** and choose **Uninstall**.
+
+The MyCursor window opens on its **Connect** page, with a big square code (QR
+code). The list on the left has a page for everything MyCursor does: **Connect**,
+**Share files**, **Offline**, **Bluetooth** and **Settings**. No mouse yet? Press
+**Tab** and **Enter**, or **Ctrl+1** to **Ctrl+5** to switch pages.
+
+From now on MyCursor starts by itself whenever you sign in to Windows, so your
+phone can connect straight away. Closing its window keeps it running in the
+taskbar; to stop it, open **Settings** and choose **Quit** (the **Start with
+Windows** switch is there too).
 
 ## 2. On the phone
 
@@ -47,7 +58,8 @@ The tabs at the top switch modes:
   fullscreen, and a **sleep timer** that puts the computer to sleep.
 - **Share**: tap **Photos & videos** or **Files** to send them to the computer —
   they land in **Downloads** and a small card offers **Open** or **Show in
-  folder**. To send the other way, right-click any file on the computer →
+  folder**. To send the other way, open **Share files** in the MyCursor
+  window and click **Choose files**, or right-click any file on the computer →
   **Send to → MyCursor phone** (on Windows 11: **Show more options** first).
   On the phone, tap **Save**: on iPhone, photos open full screen — press and
   hold, then **Save to Photos**; videos and documents go to the **Files** app.
@@ -58,12 +70,24 @@ The tabs at the top switch modes:
 
 ## No Wi-Fi? No internet?
 
-On the computer, click **Offline connection → Start offline Wi-Fi**. Scan the first
+On the computer, open **Offline** and click **Start offline Wi-Fi**. Scan the first
 code to join the computer's Wi-Fi, then the second code to open the touchpad. It
 needs no internet and uses no mobile data.
 
-**Android phones** can also use **Bluetooth**: on the computer click **Android
-Bluetooth setup** and follow the steps once.
+**Android phones** can also use **Bluetooth**: on the computer open **Bluetooth**
+and follow the steps once.
+
+## Weak Wi-Fi signal?
+
+MyCursor is built for it. When the signal is weak the dot at the top of the
+phone turns amber, and if the link drops you see **Weak signal. Reconnecting…**
+for a few seconds while it comes back by itself — keep the app open; whatever
+you typed meanwhile is sent as soon as it is back. Files you were sending carry
+on from where they stopped.
+
+If it stays weak, the best fix is the **Offline** page on the computer: the
+phone then talks straight to the computer instead of through a far-away router,
+so the signal is strong even where the Wi-Fi is not.
 
 ## If something does not work
 
@@ -74,7 +98,7 @@ Bluetooth setup** and follow the steps once.
 - **The phone cannot open the link:** phone and computer must be on the same
   Wi-Fi. Guest or school Wi-Fi often blocks devices from seeing each other — use
   **Offline connection** instead.
-- **"Windows Firewall may block phones"** in the computer window: click
+- **"Windows Firewall may be blocking phones"** in the computer window: click
   **Allow phones to connect** and choose **Yes**.
 - **Computer without a mouse** (for example a broken touchpad): Windows hides
   its pointer when it sees no mouse. MyCursor switches on Windows **Mouse Keys**
