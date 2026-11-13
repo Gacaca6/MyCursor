@@ -22,8 +22,10 @@ code). The list on the left has a page for everything MyCursor does: **Connect**
 **Share files**, **Offline**, **Bluetooth** and **Settings**. No mouse yet? Press
 **Tab** and **Enter**, or **Ctrl+1** to **Ctrl+5** to switch pages.
 
-From now on MyCursor starts by itself whenever you sign in to Windows, so your
-phone can connect straight away. Closing its window keeps it running in the
+From now on MyCursor starts by itself whenever you sign in to Windows, with
+its offline Wi-Fi already on, so your phone can connect straight away. If it is
+ever closed, press **Ctrl+Alt+P** on the keyboard to open it again — no mouse
+needed. Closing its window keeps it running in the
 taskbar; to stop it, open **Settings** and choose **Quit** (the **Start with
 Windows** switch is there too).
 
