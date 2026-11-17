@@ -59,8 +59,10 @@ The tabs at the top switch modes:
 - **Media** (films and music on a TV or projector): play/pause, skip, volume,
   fullscreen, and a **sleep timer** that puts the computer to sleep.
 - **Share**: tap **Photos & videos** or **Files** to send them to the computer —
-  they land in **Downloads** and a small card offers **Open** or **Show in
-  folder**. To send the other way, open **Share files** in the MyCursor
+  pick as many as you like. They go one by one, each with its own progress,
+  and land in **Downloads**; tap **×** to cancel one, or **Cancel all**. Keep
+  MyCursor open on the phone until it says they are sent. On the computer a
+  small card shows them arriving, then offers **Show in folder**. To send the other way, open **Share files** in the MyCursor
   window and click **Choose files**, or right-click any file on the computer →
   **Send to → MyCursor phone** (on Windows 11: **Show more options** first).
   On the phone, tap **Save**: on iPhone, photos open full screen — press and
