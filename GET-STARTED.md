@@ -68,9 +68,14 @@ The tabs at the top switch modes:
   On the phone, tap **Save**: on iPhone, photos open full screen — press and
   hold, then **Save to Photos**; videos and documents go to the **Files** app.
   On Android everything saves with one tap and photos appear in Gallery.
-  If the Wi-Fi drops mid-transfer, sending picks up where it stopped. Paste a
-  link and tap **Open link on PC** to open it there. No cable, no internet,
-  no mobile data.
+  If the Wi-Fi drops mid-transfer, sending picks up where it stopped. No
+  cable, no internet, no mobile data.
+- **Text and links**: on the phone, type or paste under **Text & links** and
+  tap **Send to PC** — it is on the computer's clipboard, ready for Ctrl+V,
+  and a card offers **Open** for a link. On the computer, open **Share** and
+  type or paste in **Text & links**, then **Send to phone** (or **Paste &
+  send** for whatever you copied last); on the phone it appears under **From
+  the PC** with **Copy** and **Open**.
 
 ## No Wi-Fi? No internet?
 
@@ -114,5 +119,13 @@ so the signal is strong even where the Wi-Fi is not.
 - **Need help?** Send the file `%LOCALAPPDATA%\MyCursor\mycursor.log`
   (paste that into the File Explorer address bar).
 
+## Updates
+
+When a new version is out, a card on the computer offers **Update now**: it
+downloads, installs and reopens MyCursor in a few seconds, keeping your phone
+paired. To check yourself, open **Settings › Updates › Check now**.
+
 MyCursor only sends pointer and keyboard actions to your own computer. It never
-sees your screen, and nothing goes to the internet.
+sees your screen. The one thing that goes to the internet is the check for a
+new version, a small request to GitHub, which you can turn off in Settings ›
+Updates.
