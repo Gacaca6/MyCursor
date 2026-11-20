@@ -85,8 +85,9 @@ The tabs at the top switch modes:
 
 On the computer, open **Offline** and click **Start offline Wi-Fi**. Scan the first
 code to join the computer's Wi-Fi, then the second code to open the touchpad. It
-needs no internet and uses no mobile data. If Android says the network has no
-internet, choose **Stay connected**.
+needs no internet and uses no mobile data. This works on iPhone. **Many Android
+phones cannot open the touchpad code on the offline Wi-Fi yet**; a fix is being
+built. Until then, put the Android phone on the same Wi-Fi as the computer.
 
 **Android phones** can also use **Bluetooth**: on the computer open **Bluetooth**
 and follow the steps once.
